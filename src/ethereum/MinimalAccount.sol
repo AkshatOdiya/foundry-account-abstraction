@@ -63,9 +63,9 @@ contract MinimalAccount is IAccount, Ownable {
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
         address signer = ECDSA.recover(ethSignedMessageHash, userOp.signature);
         if (signer != owner()) {
-            return SIG_VALIDATION_FAILED;
+            return SIG_VALIDATION_FAILED; // SIG_VALIDATION_FAILED = 1
         }
-        return SIG_VALIDATION_SUCCESS;
+        return SIG_VALIDATION_SUCCESS; // SIG_VALIDATION_SUCCESS = 0
     }
 
     // function to send funds to entryPoint as fee for preceeding
