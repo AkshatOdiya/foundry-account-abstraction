@@ -6,3 +6,8 @@ remappings = ["@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/"]
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
 
 is-system = true
+via-ir = true
+optimizer = true # this solves the problem of ---> Error: Compiler run failed:--
+# -- Error: Yul exception:Cannot swap Variable headStart with Variable tail: --
+# -- too deep in the stack by 1 slots in [ headStart RET value13 headStart value12 value11 value10 value9 value8 value7 value6 value5 value4 value3 value2 value1 value0 tail ] --
+# -- No memoryguard was present. Consider using memory-safe assembly only and annotating it via 'assembly ("memory-safe") { ... }'.
