@@ -38,6 +38,24 @@ contract MinimalAccount is IAccount, Ownable {
     // An account should also accept funds
     receive() external payable {}
 
+    /**
+     * @param userOp  The packed UserOperation data
+     * @param userOpHash  A hash of the userOp, used as the basis for the signature
+     * @param missingAccountFunds Funds needed for the operation if the account hasn't pre-deposited enough into the EntryPoint
+     * @return validationData Returns data indicating validity and optional time constraints
+     *
+     * This function is invoked by the EntryPoint contract before any execution takes place.
+     * Verify the user's signature, which is part of the userOp struct, against the userOpHash.
+     *
+     * Validate the nonce to prevent replay attacks.
+     *
+     * Perform any other necessary checks (e.g., account active, not locked).
+     *
+     * If validateUserOp completes successfully (doesn't revert), the EntryPoint proceeds to execute the operation.
+     * If it reverts, the operation is rejected. The validationData return value can be used to encode more complex validation logic,
+     * such as specifying time windows during which the UserOperation is valid (particularly useful for Paymaster interactions).
+     * A return value of 0 typically indicates successful validation without time constraints.
+     */
     // A Signature is valid, if it's the MinimalAccount owner
     function validateUserOp(PackedUserOperation calldata userOp, bytes32 userOpHash, uint256 missingAccountFunds)
         external
