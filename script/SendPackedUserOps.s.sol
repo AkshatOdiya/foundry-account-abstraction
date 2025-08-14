@@ -7,6 +7,11 @@ import {HelperConfig} from "./HelperConfig.s.sol";
 import {IEntryPoint} from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
+/**
+ * @notice SendPackedUserOp.s.sol
+ * Will serve as the central hub for interacting with the account abstraction system.
+ * It will be responsible for constructing, signing, and dispatching PackedUserOperations
+ */
 contract SendPackedUserOp is Script {
     using MessageHashUtils for bytes32;
 

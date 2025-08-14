@@ -5,6 +5,12 @@ pragma solidity ^0.8.20;
 import {Script, console2} from "forge-std/Script.sol";
 import {EntryPoint} from "lib/account-abstraction/contracts/core/EntryPoint.sol";
 
+/**
+ * @notice HelperConfig.s.sol
+ *  A crucial component for managing network-specific configurations.
+ * Its primary role is to handle variations in crucial addresses, such as the EntryPoint contract, which differs across various blockchain networks.
+ * This allows our deployment scripts to be versatile and reusable.
+ */
 contract HelperConfig is Script {
     error HelperConfig__InvalidChainId();
 
@@ -13,10 +19,11 @@ contract HelperConfig is Script {
         address account;
     }
 
+    // Chain ID Constants
     uint256 constant ETH_SEPOLIA_CHAIN_ID = 11155111;
     uint256 constant ZKSYNC_SEPOILA_CHAIN_ID = 300;
     uint256 constant LOCAL_CHAIN_ID = 31337;
-    address constant BURNER_WALLET = 0x3C0054b2E55742503A6a04905280feD3bD49Eca6;
+    address constant BURNER_WALLET = address(0); // Add your wallet address here
     // address constant FOUNDRY_DEFAULT_SENDER = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
     address constant ANVIL_DEFAULT_ACCOUNT = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
@@ -48,6 +55,7 @@ contract HelperConfig is Script {
     }
 
     // zksync has native account abstraction
+    // address(0) is used as a placeholder or to indicate reliance on native mechanisms.
     function getZksyncSepoliaConfig() public pure returns (NetworkConfig memory) {
         return NetworkConfig({entryPoint: address(0), account: BURNER_WALLET});
     }
@@ -57,6 +65,8 @@ contract HelperConfig is Script {
             return localNetworkConfig;
         }
         // deploy mocks
+        // let's use Sepolia's EntryPoint or a defined mock if available
+        // In a real scenario, you'd deploy a MockEntryPoint.sol here.
         console2.log("Deploying Mocks......");
         vm.startBroadcast(ANVIL_DEFAULT_ACCOUNT);
         EntryPoint entryPoint = new EntryPoint();

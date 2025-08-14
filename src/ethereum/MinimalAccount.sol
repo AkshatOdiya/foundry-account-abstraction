@@ -66,6 +66,17 @@ contract MinimalAccount is IAccount, Ownable {
         _payPrefund(missingAccountFunds);
     }
 
+    /**
+     * Validation alone is insufficient; the account must also be able to perform actions and interact with other decentralized applications (dApps).
+     * This is where the execute function becomes indispensable
+     *
+     * @param dest The target contract address for the interaction
+     * @param value The amount of Ether (in wei) to be sent with the call. This is 0 if no Ether transfer is intended.
+     * @param funcData The ABI-encoded data representing the function to be called on the dest contract, along with its arguments
+     *
+     * To interact with an arbitrary contract and function, execute employs a low-level .call.
+     * This Solidity feature provides maximum flexibility for dynamic calls.
+     */
     function execute(address dest, uint256 value, bytes calldata funcData) external requireFromEntryPointOrOwner {
         (bool success, bytes memory result) = dest.call{value: value}(funcData);
         if (!success) {
@@ -78,6 +89,7 @@ contract MinimalAccount is IAccount, Ownable {
         view
         returns (uint256 validationData)
     {
+        // A signature is valid if it's from the MinimalAccount owner
         bytes32 ethSignedMessageHash = MessageHashUtils.toEthSignedMessageHash(userOpHash);
         address signer = ECDSA.recover(ethSignedMessageHash, userOp.signature);
         if (signer != owner()) {
