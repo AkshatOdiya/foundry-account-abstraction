@@ -345,3 +345,32 @@ The `UserOperation` struct, defined by ERC-4337, is crucial. It bundles all nece
 
 When the `EntryPoint` contract interacts with an account contract on-chain, it uses a packed version of this `UserOperation`.
 
+---
+
+## Advance Debugging in Foundry
+
+Foundry has integrated debugger. If you have a specific test function failing, such as testEntryPointCanExecuteCommands, you can invoke the debugger with increased verbosity using the following command:
+
+```bash
+forge test --debug testEntryPointCanExecuteCommands -vvv
+```
+*(Initially, you might run forge test --mt testEntryPointCanExecuteCommands -vvv to match the test name, and then add the --debug flag to dive deeper.)*
+
+Executing this command launches a low-level debugger interface. This interface provides a wealth of information, including EVM opcodes, the current call stack, memory contents, and, importantly, the corresponding Solidity source code context when available.
+
+### Tip 1: Instantly Navigate to the Revert Location
+When a transaction reverts, your first goal is to find out where it reverted. Foundry's debugger offers a handy shortcut for this:
+
+* **Keyboard Shortcut**: `Shift + G`
+
+Pressing `Shift + G` instructs the debugger to jump directly to the EVM instruction that caused the revert. If source mapping is available, it will also highlight the corresponding line in your Solidity code.
+
+### Tip 2: Understanding the Pre-Revert State by Stepping Backwards
+Knowing where the revert happened is useful, but to understand *why*, we often need to inspect the state and execution path leading up to it. The debugger allows us to step backward through the execution trace.
+
+* **Keyboard Shortcut**: `J` (repeatedly press to step to the previous EVM opcode)
+
+   * The on-screen help often shows `[k/j]: prev/next op`, where `k` steps forward (next opcode) and `j` steps backward (previous opcode).
+
+Sometimes you might encounter messages like "No source map for contract ......." This means the debugger doesn't have the source code mapping for that specific part of the dependency. However, by continuing to step back, you will eventually land on a relevant Solidity line within the contract itself, if its source is available in your project or in your project dependency(in `lib/`).
+

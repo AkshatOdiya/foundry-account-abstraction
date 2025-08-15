@@ -23,12 +23,29 @@ contract SendPackedUserOp is Script {
         address minimalAccount
     ) public view returns (PackedUserOperation memory) {
         // 1. Generate Unsigned Data
+
+        // Fetch the nonce for the sender (smart account address) from the EntryPoint
+        // For simplicity, assume the 'config.account' is the smart account for now,
+        // though in reality, this would be the smart account address, and config.account the EOA owner.
+        // Nonce would be: IEntryPoint(config.entryPoint).getNonce(config.account, nonceKey);
+        // For Now, use a placeholder nonce or assume it's passed in.
+
+        // the EntryPoint typically expects the first nonce to be 0. The vm.getNonce() cheatcode might return 1 if it's
+        // tracking nonces similarly to EOAs or based on other contract creations/interactions in the test environment for an account that has not yet had a UserOperation processed
         uint256 nonce = vm.getNonce(minimalAccount) - 1;
         PackedUserOperation memory userOp = _generateUnsignedUserOperation(callData, minimalAccount, nonce);
+
         // 2. getUserOp hash
+        // We need to cast the config.entryPoint address to the IEntryPoint interface
         bytes32 userOpHash = IEntryPoint(config.entryPoint).getUserOpHash(userOp);
+
+        // Prepare the hash for EIP-191 signing (standard Ethereum signed message)
+        // This prepends "\x19Ethereum Signed Message:\n32" and re-hashes.
         bytes32 digest = userOpHash.toEthSignedMessageHash();
+
         // 3. Sign it
+        // 'config.account' here is the EOA that owns/controls the smart account.
+        // This EOA must be unlocked for vm.sign to work without a private key.
         uint8 v;
         bytes32 r;
         bytes32 s;
@@ -38,6 +55,10 @@ contract SendPackedUserOp is Script {
         } else {
             (v, r, s) = vm.sign(vm.envUint("SEPOLIA_PRIVATE_KEY"), digest);
         }
+
+        // Construct the final signature.
+        // IMPORTANT: The order is R, S, V (abi.encodePacked(r, s, v)).
+        // This differs from vm.sign's return order (v, r, s).
         userOp.signature = abi.encodePacked(r, s, v); //Note the order
         return userOp;
     }
@@ -53,7 +74,7 @@ contract SendPackedUserOp is Script {
         uint128 maxPriorityFeePerGas = 256;
         uint128 maxFeePerGas = maxPriorityFeePerGas;
         return PackedUserOperation({
-            sender: sender,
+            sender: sender, // The EntryPoint expects sender to be the smart contract account that will validate the UserOperation.
             nonce: nonce,
             initCode: hex"",
             callData: callData,

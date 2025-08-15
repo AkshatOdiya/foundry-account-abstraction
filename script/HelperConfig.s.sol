@@ -62,12 +62,17 @@ contract HelperConfig is Script {
 
     function getOrCreateAnvilEthConfig() public returns (NetworkConfig memory) {
         if (localNetworkConfig.account != address(0)) {
+            // Check if already configured
             return localNetworkConfig;
         }
         // deploy mocks
         // let's use Sepolia's EntryPoint or a defined mock if available
         // In a real scenario, you'd deploy a MockEntryPoint.sol here.
         console2.log("Deploying Mocks......");
+
+        // Uses ANVIL_DEFAULT_ACCOUNT for vm.startBroadcast when deploying mock contracts or any initial setup on the local Anvil chain.
+        // This ensures that the msg.sender for these deployments is Anvil's default account.
+
         vm.startBroadcast(ANVIL_DEFAULT_ACCOUNT);
         EntryPoint entryPoint = new EntryPoint();
         vm.stopBroadcast();
