@@ -54,6 +54,8 @@ contract ZkMinimalAccount is IAccount, Ownable {
     error ZkMinimalAccount__FailedToPay();
     error ZkMinimalAccount__InvalidSignature();
 
+    // BOOTLOADER_FORMAL_ADDRESS is a constant representing the official address of the zkSync Bootloader.
+
     modifier requireFromBootLoader() {
         if (msg.sender != BOOTLOADER_FORMAL_ADDRESS) {
             revert ZkMinimalAccount__NotFromBootLoader();
@@ -216,7 +218,7 @@ contract ZkMinimalAccount is IAccount, Ownable {
         }
 
         // Check the signature
-        bytes32 txHash = _transaction.encodeHash();
+        bytes32 txHash = _transaction.encodeHash(); // _transaction.encodeHash() provides the appropriate EIP-712 digest for AA transactions, or the correct hash for other transaction types if they were being processed by the account
         address signer = ECDSA.recover(txHash, _transaction.signature);
         bool isValidSigner = signer == owner();
         if (isValidSigner) {
