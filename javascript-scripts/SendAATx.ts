@@ -3,6 +3,8 @@ import { utils, Wallet, Provider, EIP712Signer, types, Contract, ContractFactory
 import * as ethers from "ethers"
 import "dotenv/config"
 
+// This script is used to send a transaction initiated by our deployed AA contract.
+
 // Mainnet
 // const ZK_MINIMAL_ADDRESS = ""
 

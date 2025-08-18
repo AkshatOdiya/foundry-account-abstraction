@@ -3,6 +3,8 @@ import { utils, Wallet, Provider, EIP712Signer, types, Contract, ContractFactory
 import * as ethers from "ethers"
 import "dotenv/config"
 
+// This script handles the deployment of our AA smart contract.
+
 async function main() {
     // Local net - comment to unuse
     // let provider = new Provider("http://127.0.0.1:8011")

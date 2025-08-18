@@ -248,3 +248,35 @@ contract ZkMinimalAccount is IAccount, Ownable {
         }
     }
 }
+
+/**
+ * @notice Key Considerations for zkSync Transactions
+ *
+ * When constructing zkSync Transaction structs, keep the following points in mind:
+ *
+ * Transaction Types (txType): For zkSync native Account Abstraction, the txType is 113 (hex 0x71).
+ * zkSync supports other transaction types (e.g., Legacy, EIP-2930, EIP-1559), but 113 is specific to AA.
+ *
+ * Address Casting (uint256(uint160(address))): A critical detail is that the from and to fields in the zkSync
+ * Transaction struct are uint256, not the standard address type. The conversion uint256(uint160(someAddress)) is the standard way
+ * to cast an address (which is 160 bits) to a uint256. This distinction arises from lower-level data representation, a topic often
+ * explored in depth in areas like EVM assembly or formal verification.
+ *
+ * Nonce Handling (vm.getNonce): In our Foundry test, we use the vm.getNonce(address) cheatcode to retrieve the nonce for the minimalAccount.
+ * It's important to recognize that this is a simplification provided by Foundry. In a live zkSync Era environment, nonces are managed by a dedicated NonceHolder system contract.
+ * For robust, off-Foundry applications, you would interact with this NonceHolder contract to get the correct nonce.
+ *
+ * Pubdata (gasPerPubdataByteLimit): This field accounts for the cost associated with publishing data from zkSync (L2) back to Ethereum (L1).
+ * This is a distinct cost factor in zkEVM rollups, reflecting the L1 data availability requirements.
+ *
+ * Unsigned Transaction: Our helper function is named _createUnsignedTransaction (in test file) because we explicitly set the signature field to an empty byte string (hex"").
+ * This is suitable for owner-initiated actions within tests where the signature verification path might be bypassed or handled differently.
+ *
+ * Factory Dependencies (factoryDeps): This field is crucial if your transaction intends to deploy new contracts through the smart contract account.
+ * It holds the bytecode hashes of these new contracts. If your transaction only calls existing contracts, this array can be empty.
+ *
+ * Paymaster Fields (paymaster, paymasterInput): These fields are used when implementing sponsored transactions via a paymaster.
+ * If you're not using a paymaster, paymaster should be the zero address, and paymasterInput can be empty.
+ *
+ * Reserved Fields: These are populated with default empty/zero values as they are designated for future protocol enhancements or features.
+ */
